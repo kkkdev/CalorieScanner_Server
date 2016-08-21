@@ -1,0 +1,15 @@
+{
+    "require": {
+        "djchen/oauth2-fitbit": "^0.2.0",
+        "phpfastcache/phpfastcache": "^4.3.9",
+        "slim/slim": "^3.0",
+        "slim/twig-view": "^2.1"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "kkkdev\\CalorieScanner\\" : "src/" 
+        }
+    }
+}
+
