@@ -14,13 +14,13 @@ use GuzzleHttp;
 
 class CalorieSearchService {
 
-    const FITBIT_USER_ID = "*****";
+    const FITBIT_USER_ID = "4LPH24";
     const SEARCH_WORD_LIMIT = 3;
 
     private $oYahooShoppingSearchDataParser;
 
     public function __construct() {
-
+        
     }
 
     /** 候補を検索 */
@@ -73,14 +73,18 @@ class CalorieSearchService {
         $aResult = [];
         $oFitBitAuthAdapter = new Auth\FitBitAuthAdapter();
         $oFitBitAuthAdapter->setFitbitUserID(self::FITBIT_USER_ID);
-        $oFitBitAuthAdapter->auth();
+        $oAccessToken;
+        if (!$oAccessToken = $oFitBitAuthAdapter->getAccessToken()) {
+            $oFitBitAuthAdapter->auth();
+            $oAccessToken = $oFitBitAuthAdapter->getAccessToken();
+        }
+
         //API
-        $oFitBitAPIUtil = new API\FitBitAPI($oFitBitAuthAdapter->getAccessToken());
+        $oFitBitAPIUtil = new API\FitBitAPI($oAccessToken);
         $sURL = Fitbit::BASE_FITBIT_API_URL . "/1/foods/search.json?query=" . $sSearchWord;
 
         try {
             $aRes = $oFitBitAPIUtil->getAPIData($sURL);
-            $fMaxSim = 0.0;
             foreach ($aRes['foods'] as $i => $aFoods) {
                 if (!$sFoodName = &$aFoods['name']) {
                     continue;
@@ -93,17 +97,16 @@ class CalorieSearchService {
                     "cal" => &$aFoods['calories'],
                     "ratio" => $fSim
                 ];
-                //最大の
-                if ($fSim > $fMaxSim) {
-                    array_unshift($aResult, $aTmp);
-                    $fMaxSim = $fSim;
-                } else {
-                    $aResult[] = $aTmp;
-                }
+                $aResult[] = $aTmp;
             }
         } catch (Exception $e) {
-
+            
         }
+        usort($aResult, function($a, $b) {
+            $fRatio_a = &$a["ratio"];
+            $fRatio_b = &$b["ratio"];
+            return ($fRatio_a > $fRatio_b) ? -1 : 1;
+        });
         return $aResult;
     }
 
