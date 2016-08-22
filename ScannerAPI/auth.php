@@ -5,7 +5,7 @@ require __DIR__ . "/vendor/autoload.php";
 
 /**
  * 認証
- * 
+ *
  *  */
 use kkkdev\CalorieScanner\Auth;
 use kkkdev\CalorieScanner\API;
@@ -27,16 +27,6 @@ $app->get('/view', function ($request, $response, $args) {
     $oFitBitAuthAdapter = new Auth\FitBitAuthAdapter();
     $key = "hogehoge";
     echo $sUserID = $oFitBitAuthAdapter->getUserID();
-exit;
-    //API
-    $oFitBitAPIUtil = new API\FitBitAPI($oFitBitAuthAdapter->getAccessToken());
-    $sURL = Fitbit::BASE_FITBIT_API_URL . "/1/foods/search.json?query=ブルボン";
-    try {
-        $res = $oFitBitAPIUtil->getAPIData($sURL);
-    } catch (Exception $e) {
-        var_export($e);
-        exit;
-    }
-    var_export($res);exit;
+    exit;
 });
 $app->run();
